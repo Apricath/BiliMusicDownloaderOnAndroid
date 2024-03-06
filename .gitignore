@@ -68,3 +68,5 @@ yarn-error.log
 android/
 android/gradle.properties
 android/app/build.gradle
+__tests__/App.test.tsx
+.bundle/config
