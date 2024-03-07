@@ -86,7 +86,7 @@ const Search = () => {
           }
           tagsStyles={
             {
-              em: { fontWeight: 'bold', fontStyle: 'normal', color:  Appearance.getColorScheme() === 'light' ? '#2296f3' : '#3d8bcc' },
+              em: { fontWeight: 'bold', fontStyle: 'normal', color:  Appearance.getColorScheme() === 'light' ? '#2296f3' : 'white' },
             }
           }
         />

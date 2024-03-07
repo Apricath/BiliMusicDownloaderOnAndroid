@@ -36,7 +36,7 @@ export const downloadHistory_createTable = async (db: SQLiteDatabase) => {
 export const downloadHistory_getAllDownloadHistory = async (db: SQLiteDatabase) => {
   try {
     const DownloadHistoryItems: DownloadHistoryItem[] = [];
-    const results = await db.executeSql(`SELECT * FROM ${tableName}`);
+    const results = await db.executeSql(`SELECT * FROM ${tableName} ORDER BY id DESC;`);
     results.forEach((result) => {
       for (let index = 0; index < result.rows.length; index++) {
         DownloadHistoryItems.push(result.rows.item(index))

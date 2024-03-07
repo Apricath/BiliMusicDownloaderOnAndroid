@@ -12,6 +12,7 @@ import DownloadHistory from './src/pages/DownloadHistory';
 const Tab = createBottomTabNavigator();
 
 const App = () => {
+
   const db_Init = useCallback(async () => {
     const db = await downloadHistory_OpenDB();
     if (db === undefined) {

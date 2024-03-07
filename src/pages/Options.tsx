@@ -8,7 +8,6 @@ import OptionButton from "../components/OptionButton";
 import { downloadHistory_OpenDB, downloadHistory_cleanTable } from "../db/downloadHistoryDB";
 
 const Options = () => {
-
   // FEAT: 获取B站Cookie
   const handleBiliCookie = () => {
     axios({
@@ -76,7 +75,7 @@ const Options = () => {
         <OptionItem title="保存地址" description="默认位于系统下载目录" />
         <OptionItem title="深色模式" description="默认跟随系统，热切换可能会出现渲染问题" />
         <View>
-          <OptionItem title="清空历史记录" description="可能需要刷新" />
+          <OptionItem title="清空历史记录" description="可能需要手动刷新" />
           <OptionButton handleFunc={ Options_cleanDownloadHistory } description="清空历史记录" />
         </View>
         {/* <Button title="修改保存地址" onPress={() => {handleStorage()}} /> */}

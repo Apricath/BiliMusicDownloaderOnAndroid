@@ -69,7 +69,7 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
     const [cidList, setCidList] = useState<Array<Cid>>([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const db_AddDownloadHistory = async (title: string, bvid: string, part: string, cid: number) => {
+    const db_AddDownloadHistory = useCallback(async (title: string, bvid: string, part: string, cid: number) => {
       const temp: DownloadHistoryItem = {
         // title: title.replaceAll("<em class=\"keyword\">", "").replaceAll("</em>", ""),
         title: title,
@@ -89,7 +89,7 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
       } catch (error) {
         console.log(error);
       }
-    };
+    }, []);
 
     // FEAT: 打开选择意味着要开始请求Cid了
     const getCidList = () => {
@@ -148,13 +148,21 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
   const renderItem = ({ item }: { item: Cid }) => (
     <View>
       <TouchableHighlight
-        style={{ ...styles.cidButton, backgroundColor: "#f2f2f2" }}
+        style={[
+          styles.cidButton,
+          Appearance.getColorScheme() === 'light' ? { backgroundColor: '#f2f2f2' } : { backgroundColor: '#999999' }
+        ]}
         onPress={() => {
           handleCidSelect(item.part.trim() === "" ? searchListItem.title.replaceAll("<em class=\"keyword\">", "").replaceAll("</em>", "") : item.part, item.cid);
         }}
         underlayColor="#e8e8e8"
       >
-        <Text style={[{ fontSize: 12, color: '#2196F3' } ]}>
+        <Text
+          style={[
+            { fontSize: 12 },
+            Appearance.getColorScheme() === 'light' ? { color: '#2196F3' } : { color: '#f2f2f2' }
+          ]}
+        >
           { item.part.trim() === "" ? searchListItem.title.replaceAll("<em class=\"keyword\">", "").replaceAll("</em>", "") : item.part }
         </Text>
       </TouchableHighlight>
@@ -172,21 +180,35 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
             setModalVisible(!modalVisible);
           }}
         >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
+            <View style={ styles.centeredView }>
+              <View style={[
+                  styles.modalView,
+                  Appearance.getColorScheme() === 'light' ? { backgroundColor: 'white' } : { backgroundColor: '#666666' }
+                ]}
+              >
                 <FlatList
                   data={cidList}
                   renderItem={renderItem}
                   keyExtractor={item => item.cid.toLocaleString()}
                 />
                 <TouchableHighlight
-                  style={{ ...styles.openButton, backgroundColor: "#2196F3", marginTop: 4 }}
+                  style={[
+                    styles.openButton,
+                    { marginTop: 4 },
+                    Appearance.getColorScheme() === 'light' ? { backgroundColor: '#2196F3' } : { backgroundColor: '#999999' }
+                  ]}
                   onPress={() => {
                     setModalVisible(!modalVisible);
                   }}
-                  underlayColor="#026cc6"
+                  underlayColor='#026cc6'
                 >
-                  <Text style={[styles.textStyle, { width: 48 }]}>取消</Text>
+                  <Text style={[
+                    styles.textStyle,
+                    { width: 48 },
+                    Appearance.getColorScheme() === 'light' ? { color: 'white' } : { color: '#f2f2f2' }
+                  ]}>
+                    取消
+                  </Text>
                 </TouchableHighlight>
               </View>
             </View>
@@ -194,7 +216,7 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
         <TouchableHighlight
           style={[
             styles.openButton,
-            Appearance.getColorScheme() === 'light' ? { backgroundColor: "#2296f3" } : { backgroundColor: "#3d8bcc" }
+            Appearance.getColorScheme() === 'light' ? { backgroundColor: "#2296f3" } : { backgroundColor: "#999999" }
           ]}
           onPress={() => {
             getCidList();

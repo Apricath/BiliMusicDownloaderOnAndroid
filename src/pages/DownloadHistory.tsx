@@ -8,8 +8,8 @@ import { downloadHistory_OpenDB, downloadHistory_getAllDownloadHistory } from ".
 import { SQLiteDatabase } from "react-native-sqlite-storage";
 import ChooseCid from "../components/ChooseCid";
 
-const DownloadHistory = () => {
-  const { width } = useWindowDimensions();
+const DownloadHistory = React.memo(() => {
+  const { width, height } = useWindowDimensions();
   const [downloadHistoryItems, setDownloadHistoryItems] = useState<Array<DownloadHistoryItem>>([]);
 
   const db_OpenDB = useCallback(async () => {
@@ -46,7 +46,7 @@ const DownloadHistory = () => {
           }
           tagsStyles={
             {
-              em: { fontWeight: 'bold', fontStyle: 'normal', color:  Appearance.getColorScheme() === 'light' ? '#2296f3' : '#3d8bcc' },
+              em: { fontStyle: 'normal' },
             }
           }
         />
@@ -77,7 +77,7 @@ const DownloadHistory = () => {
       <TouchableHighlight
         style={[
           styles.openButton,
-          Appearance.getColorScheme() === 'light' ? { backgroundColor: "#2296f3" } : { backgroundColor: "#3d8bcc" },
+          Appearance.getColorScheme() === 'light' ? { backgroundColor: "#2296f3" } : { backgroundColor: "#999999" },
           { position: "absolute", right: 8, top: 4, width: 56 }
         ]}
         onPress={async () => {
@@ -102,14 +102,24 @@ const DownloadHistory = () => {
         data={downloadHistoryItems}
         renderItem={renderItem}
         keyExtractor={item => item.title}
+        refreshing
+        ListEmptyComponent={() => (
+          <View
+            style={[{ justifyContent: "center", alignItems: "center", height: height - 128 }]}
+          >
+            <Text>
+              暂无历史记录
+            </Text>
+          </View>
+        )}
       />
     </View>
   );
-};
+});
 
 // 使用React.memo解决: You seem to update props of the "TRenderEngineProvider" component in short periods of time, 
 // causing costly tree rerenders (last update was 40.16ms ago). See https://stackoverflow.com/q/68966120/2779871
-export default React.memo(DownloadHistory);
+export default DownloadHistory;
 
 const styles = StyleSheet.create({
   container: {
