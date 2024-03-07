@@ -137,6 +137,12 @@ const ChooseCid: React.FC<Props> = ({ searchListItem }) => {
             },
         });
         const audioUrl = response.data.data.dash.audio[0].baseUrl;
+        if (part.includes("/") || part.includes("\\") || part.includes(":")  || part.includes("|") ||
+            part.includes("*") || part.includes("?")  || part.includes("\"") || part.includes("<")  ||
+            part.includes(">")) {
+          part = part.replaceAll("/", "").replaceAll("\\", "").replaceAll(":", "").replaceAll("|", "").replaceAll("*", "").replaceAll("?", "").replaceAll("\"", "").replaceAll("<", "").replaceAll(">", "");
+          ToastAndroid.show("目标文件名包含特殊字符，已修改为" + part, ToastAndroid.SHORT);
+        }
         await handleDownload(part, audioUrl);
         await db_AddDownloadHistory(searchListItem.title, searchListItem.bvid, part, cid);
     } catch (err) {
