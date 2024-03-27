@@ -8,10 +8,30 @@ import Search from './src/pages/Search';
 import Options from './src/pages/Options';
 import { downloadHistory_OpenDB, downloadHistory_createTable } from './src/db/downloadHistoryDB';
 import DownloadHistory from './src/pages/DownloadHistory';
+import storage from './src/db/downloadPath';
 
 const Tab = createBottomTabNavigator();
 
 const App = () => {
+  // 初始化的时候加载下载地址，首次启动需要创建
+  useEffect(() => {
+    storage
+      .load({key: 'downloadPath'})
+      .then(ret => {
+        console.log('useEffect: load download path', ret);
+      })
+      .catch(err => {
+        console.log(err);
+        storage.save({
+          key: 'downloadPath',
+          data: {
+            path: '/storage/emulated/0/Download',
+            isDefault: true,
+          },
+          expires: null,
+        });
+      });
+  }, []);
 
   const db_Init = useCallback(async () => {
     const db = await downloadHistory_OpenDB();

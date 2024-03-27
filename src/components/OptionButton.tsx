@@ -17,7 +17,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({ handleFunc, description, co
           : { backgroundColor: pressed ? '#999999' : '#666666' },
         { height: 40, justifyContent: 'center', alignItems: 'center' },
         { borderColor: "#e8e8e8", borderWidth: 1, borderCurve: "circular", borderRadius: 12 },
-        { position: 'absolute', right: 0, margin: 8, padding: 4 }
+        { position: 'absolute', right: 0, margin: 8, padding: 8 }
       ]}
     >
       <Text style={[
