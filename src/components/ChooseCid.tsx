@@ -42,7 +42,10 @@ export const handleDownload = async (title: string, url: string) => {
         try {
           const ret = RNFS.downloadFile(options);
           ret.promise.then(res => {
-            RNFS.moveFile(`${RNFS.DownloadDirectoryPath}/${title}.m4a`, `${downloadPath}/${title}.m4a`).catch(err => ToastAndroid.show("移动失败", ToastAndroid.SHORT));
+            RNFS.moveFile(`${RNFS.DownloadDirectoryPath}/${title}.m4a`, `${downloadPath}/${title}.m4a`)
+              .catch(err => ToastAndroid.show("移动失败", ToastAndroid.SHORT));
+            RNFS.scanFile(`${downloadPath}/${title}.m4a`)
+              .catch(err => ToastAndroid.show("扫描失败", ToastAndroid.SHORT));
             ToastAndroid.show("下载成功", ToastAndroid.SHORT);
           }).catch(err => {
             ToastAndroid.show("下载失败，将尝试下载在系统默认下载文件夹", ToastAndroid.SHORT);
