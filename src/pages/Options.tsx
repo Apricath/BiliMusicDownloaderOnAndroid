@@ -7,30 +7,11 @@ import OptionItem from "../components/OptionItem";
 import OptionButton from "../components/OptionButton";
 import { downloadHistory_OpenDB, downloadHistory_cleanTable } from "../db/downloadHistoryDB";
 import storage from "../db/downloadPath";
+import isLightColorScheme from "../utils/isLightColorScheme";
+import pageStyle from "../styles/pageStyle";
 
 const Options = () => {
   const rootPath = '/storage/emulated/0/';
-  // FEAT: 获取B站Cookie
-  const handleBiliCookie = () => {
-    axios({
-      method: "get",
-      url: "https://www.bilibili.com",
-      headers: {
-        "Connection": "keep-alive",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      }
-    })
-    .then(res => {
-      console.log(res.headers);
-      ToastAndroid.show("获取B站Cookie成功", ToastAndroid.SHORT);
-    })
-    .catch(err => {
-      console.log(err);
-      Alert.alert("获取Cookie错误！", "请检查网络环境！");
-    });
-  }
 
   // FEAT: 清空历史记录
   const Options_cleanDownloadHistory = useCallback(async () => {
@@ -41,7 +22,7 @@ const Options = () => {
     await downloadHistory_cleanTable(db);
     ToastAndroid.show("已清空历史记录", ToastAndroid.SHORT);
   }, []);
-  
+
   const [downloadPath, setDownloadPath] = useState<string>(
     '/storage/emulated/0/Download',
   );
@@ -67,7 +48,7 @@ const Options = () => {
       key: 'downloadPath', // 注意:请不要在key中使用_下划线符号!
       data: {
         path: '/storage/emulated/0/Download',
-        isDefault: false,
+        isDefault: true,
       },
       expires: null,
     });
@@ -77,7 +58,7 @@ const Options = () => {
   // 初始化的时候加载下载地址，首次启动需要创建
   useEffect(() => {
     storage
-      .load({key: 'downloadPath'})
+      .load({ key: 'downloadPath' })
       .then(ret => {
         console.log('useEffect: load download path', ret);
         if (ret?.isDefault === false) {
@@ -91,49 +72,36 @@ const Options = () => {
 
   return (
     <View style={[
-      styles.container,
-      Appearance.getColorScheme() === 'light' ? { backgroundColor: 'white' } : { backgroundColor: '#666666' }
+      pageStyle.container,
+      isLightColorScheme() ? pageStyle.lightContainer : pageStyle.darkContainer
     ]}>
       <View style={[
-        { backgroundColor: 'white', height: 48, justifyContent: 'center', borderBottomWidth: 1 },
-        Appearance.getColorScheme() === 'light' ? { borderBottomColor: '#d9d9d9' } : { borderBottomColor: '#999999' },
-        Appearance.getColorScheme() === 'light' ? { backgroundColor: 'white' } : { backgroundColor: '#333333' }
+        pageStyle.Header,
+        isLightColorScheme() ? pageStyle.lightHeader : pageStyle.darkHeader
       ]}>
-        <Text style={[
-          { paddingLeft: 8, fontSize: 20, color: 'black' },
-          Appearance.getColorScheme() === 'light' ? { color: 'black' } : { color: '#f2f2f2' }
-        ]}>
+        <Text style={[pageStyle.HeaderTitle]}>
           设置
         </Text>
       </View>
       <View style={[{ position: "relative" }]}>
         <View>
-          <OptionItem title="获取B站Cookie" description="首次使用请先点击右侧按钮" />
-          <OptionButton handleFunc={ handleBiliCookie } description="获取Cookie" />
-        </View>
-        <View>
-          <OptionItem title="保存地址" description={ downloadPath } />
-          <OptionButton handleFunc={ handleStorage } description="更改路径" />
+          <OptionItem title="保存地址" description={downloadPath} />
+          <OptionButton handleFunc={handleStorage} description="更改路径" />
         </View>
         <View>
           <OptionItem title="恢复默认保存地址" description="/storage/emulated/0/Download" />
-          <OptionButton handleFunc={ reStorage } description="恢复" />
+          <OptionButton handleFunc={reStorage} description="恢复" />
         </View>
-        <OptionItem title="深色模式" description="默认跟随系统，热切换可能会出现渲染问题" />
+        <View>
+          <OptionItem title="深色模式" description="默认跟随系统，热切换可能会出现渲染问题" />
+        </View>
         <View>
           <OptionItem title="清空历史记录" description="可能需要手动刷新" />
-          <OptionButton handleFunc={ Options_cleanDownloadHistory } description="清空历史记录" />
+          <OptionButton handleFunc={Options_cleanDownloadHistory} description="清空历史记录" />
         </View>
-        {/* <Button title="修改保存地址" onPress={() => {handleStorage()}} /> */}
       </View>
     </View>
   );
 };
 
 export default Options;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

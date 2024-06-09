@@ -7,7 +7,7 @@ const tableName = 'musicInfo';
 
 enablePromise(true);
 
-export const downloadHistory_OpenDB = async () => {
+const downloadHistory_OpenDB = async () => {
   const db = openDatabase({ name: 'downloadHistory.db', location: 'default'} , () => {
     // console.log(" downloadHistory_OpenDB success! ");
   }, () => {
@@ -17,7 +17,7 @@ export const downloadHistory_OpenDB = async () => {
   return db;
 };
 
-export const downloadHistory_createTable = async (db: SQLiteDatabase) => {
+const downloadHistory_createTable = async (db: SQLiteDatabase) => {
   const query = `CREATE TABLE IF NOT EXISTS ${tableName}
   (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +33,7 @@ export const downloadHistory_createTable = async (db: SQLiteDatabase) => {
   };
 };
 
-export const downloadHistory_getAllDownloadHistory = async (db: SQLiteDatabase) => {
+const downloadHistory_getAllDownloadHistory = async (db: SQLiteDatabase) => {
   try {
     const DownloadHistoryItems: DownloadHistoryItem[] = [];
     const results = await db.executeSql(`SELECT * FROM ${tableName} ORDER BY id DESC;`);
@@ -49,7 +49,7 @@ export const downloadHistory_getAllDownloadHistory = async (db: SQLiteDatabase) 
   return [];
 };
 
-export const downloadHistory_addDownloadHistory = async (db: SQLiteDatabase, item: DownloadHistoryItem) => {
+const downloadHistory_addDownloadHistory = async (db: SQLiteDatabase, item: DownloadHistoryItem) => {
   try {
     const insertQuery =
       `INSERT OR REPLACE INTO ${tableName} (title, bvid, part, cid) values (?, ?, ?, ?);`
@@ -60,14 +60,32 @@ export const downloadHistory_addDownloadHistory = async (db: SQLiteDatabase, ite
   return [] as DownloadHistoryItem[];
 };
 
-export const downloadHistory_deleteTable = async (db: SQLiteDatabase) => {
+const downloadHistory_deleteTable = async (db: SQLiteDatabase) => {
   const query = `DROP table ${tableName}`;
 
   await db.executeSql(query);
 };
 
-export const downloadHistory_cleanTable = async (db: SQLiteDatabase) => {
+const downloadHistory_cleanTable = async (db: SQLiteDatabase) => {
   const query = `DELETE from ${tableName}; DELETE FROM sqlite_sequence WHERE name = ${tableName};`;
 
   await db.executeSql(query);
+};
+
+const downloadHistory_init = async () => {
+  const db = await downloadHistory_OpenDB();
+  if (db === undefined) {
+    return;
+  }
+  await downloadHistory_createTable(db);
+};
+
+export {
+  downloadHistory_OpenDB,
+  downloadHistory_createTable,
+  downloadHistory_getAllDownloadHistory,
+  downloadHistory_addDownloadHistory,
+  downloadHistory_deleteTable,
+  downloadHistory_cleanTable,
+  downloadHistory_init,
 };

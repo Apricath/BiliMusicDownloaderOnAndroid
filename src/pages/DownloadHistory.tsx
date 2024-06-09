@@ -1,24 +1,25 @@
-import { Appearance, FlatList, Pressable, StyleSheet, Text, ToastAndroid, TouchableHighlight, View, useWindowDimensions } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, ToastAndroid, TouchableHighlight, View, useWindowDimensions } from "react-native";
+import React, { useEffect, useState } from "react";
 import HTML from 'react-native-render-html';
 
 import DownloadHistoryItem from "../interface/DownloadHistoryItem";
 
 import { downloadHistory_OpenDB, downloadHistory_getAllDownloadHistory } from "../db/downloadHistoryDB";
-import { SQLiteDatabase } from "react-native-sqlite-storage";
 import ChooseCid from "../components/ChooseCid";
+import isLightColorScheme from "../utils/isLightColorScheme";
+import pageStyle from "../styles/pageStyle";
 
 const DownloadHistory = React.memo(() => {
   const { width, height } = useWindowDimensions();
   const [downloadHistoryItems, setDownloadHistoryItems] = useState<Array<DownloadHistoryItem>>([]);
 
-  const db_OpenDB = useCallback(async () => {
+  const db_OpenDB = async () => {
     const db = await downloadHistory_OpenDB();
     if (db === undefined) {
       return;
     }
     setDownloadHistoryItems(await downloadHistory_getAllDownloadHistory(db));
-  }, []);
+  };
 
   useEffect(() => {
     db_OpenDB();
@@ -27,22 +28,22 @@ const DownloadHistory = React.memo(() => {
   const renderItem = ({ item }: { item: DownloadHistoryItem }) => (
     <View style={[
       styles.line,
-      Appearance.getColorScheme() === 'light'
-        ? { backgroundColor: 'white'}
-        : { backgroundColor: '#666666'}
+      isLightColorScheme()
+        ? { backgroundColor: 'white' }
+        : { backgroundColor: '#666666' }
     ]}>
       <View style={[
         styles.item,
-        { width: width - 80 }, 
-        Appearance.getColorScheme() === 'light'
-          ? { backgroundColor: '#e6e6e6'}
-          : { backgroundColor: '#999999'}
+        { width: width - 80 },
+        isLightColorScheme()
+          ? { backgroundColor: '#e6e6e6' }
+          : { backgroundColor: '#999999' }
       ]}>
         <HTML
-          source={{html: item.title}}
+          source={{ html: item.title }}
           contentWidth={width}
           baseStyle={
-            { color: Appearance.getColorScheme() === 'light' ? 'black' : '#f2f2f2'}
+            { color: isLightColorScheme() ? 'black' : '#f2f2f2' }
           }
           tagsStyles={
             {
@@ -51,7 +52,7 @@ const DownloadHistory = React.memo(() => {
           }
         />
       </View>
-      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         <ChooseCid searchListItem={item} />
       </View>
     </View>
@@ -59,26 +60,21 @@ const DownloadHistory = React.memo(() => {
 
   return (
     <View style={[
-      styles.container,
-      Appearance.getColorScheme() === 'light' ? styles.lightModeColor : styles.darkModeColor
+      pageStyle.container,
+      isLightColorScheme() ? pageStyle.lightContainer : pageStyle.darkContainer
     ]}>
       <View style={[
-        { backgroundColor: 'white', height: 48, justifyContent: 'center', borderBottomWidth: 1 },
-        Appearance.getColorScheme() === 'light' ? { borderBottomColor: '#d9d9d9' } : { borderBottomColor: '#999999' },
-        Appearance.getColorScheme() === 'light' ? { backgroundColor: 'white' } : { backgroundColor: '#333333' }
+        pageStyle.Header,
+        isLightColorScheme() ? pageStyle.lightHeader : pageStyle.darkHeader
       ]}>
-        <Text style={[
-          { paddingLeft: 8, fontSize: 20, color: 'black' },
-          Appearance.getColorScheme() === 'light' ? { color: 'black' } : { color: '#f2f2f2' }
-        ]}>
+        <Text style={[pageStyle.HeaderTitle]}>
           历史记录
         </Text>
       </View>
       <TouchableHighlight
         style={[
-          styles.openButton,
-          Appearance.getColorScheme() === 'light' ? { backgroundColor: "#2296f3" } : { backgroundColor: "#999999" },
-          { position: "absolute", right: 8, top: 4, width: 56 }
+          pageStyle.openButton,
+          isLightColorScheme() ? { backgroundColor: "#2296f3" } : { backgroundColor: "#999999" }
         ]}
         onPress={async () => {
           try {
@@ -93,7 +89,7 @@ const DownloadHistory = React.memo(() => {
         <Text style={[
           styles.textStyle,
           { width: width * 0.12 },
-          Appearance.getColorScheme() === 'light' ? { color: "white" } : { color: "#f2f2f2" }
+          isLightColorScheme() ? { color: "white" } : { color: "#f2f2f2" }
         ]}>
           刷新
         </Text>
@@ -145,17 +141,21 @@ const styles = StyleSheet.create({
     height: 32
   },
   openButton: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 12,
-      padding: 4,
-      height: 32,
-      marginVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    padding: 4,
+    height: 32,
+    marginVertical: 4,
+    position: 'absolute',
+    right: 8,
+    top: 4,
+    width: 56
   },
   textStyle: {
-      fontWeight: "bold",
-      textAlign: "center",
-      fontSize: 12,
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 12,
   },
   lightModeColor: {
     color: 'black',

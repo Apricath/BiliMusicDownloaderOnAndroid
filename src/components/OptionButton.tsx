@@ -1,5 +1,6 @@
 import { Appearance, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import isLightColorScheme from "../utils/isLightColorScheme";
 
 interface OptionButtonProps {
   handleFunc: () => any,
@@ -9,10 +10,10 @@ interface OptionButtonProps {
 
 const OptionButton: React.FC<OptionButtonProps> = ({ handleFunc, description, confirm }) => {
   return (
-    <Pressable 
+    <Pressable
       onPress={() => { handleFunc() }}
       style={({ pressed }) => [
-        Appearance.getColorScheme() === 'light'
+        isLightColorScheme()
           ? { backgroundColor: pressed ? '#999999' : 'white' }
           : { backgroundColor: pressed ? '#999999' : '#666666' },
         { height: 40, justifyContent: 'center', alignItems: 'center' },
@@ -22,9 +23,9 @@ const OptionButton: React.FC<OptionButtonProps> = ({ handleFunc, description, co
     >
       <Text style={[
         { fontSize: 12 },
-        Appearance.getColorScheme() === 'light' ? { color: '#2296f3' } : { color: '#f2f2f2' }
+        isLightColorScheme() ? { color: '#2296f3' } : { color: '#f2f2f2' }
       ]}>
-        { description }
+        {description}
       </Text>
     </Pressable>
   );

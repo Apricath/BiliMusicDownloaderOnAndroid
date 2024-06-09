@@ -1,4 +1,4 @@
-import { Text, View, Alert, TextInput, FlatList, StyleSheet, ToastAndroid, useWindowDimensions, Pressable, Appearance } from 'react-native';
+import { Text, View, Alert, TextInput, FlatList, StyleSheet, ToastAndroid, useWindowDimensions, Pressable, Appearance, Image } from 'react-native';
 import React, { Component, useEffect, useState } from 'react';
 import axios from 'axios';
 import HTML from 'react-native-render-html';
@@ -8,6 +8,8 @@ import SearchListItem from '../interface/SearchListItem';
 import Cid from '../interface/Cid';
 
 import ChooseCid from '../components/ChooseCid';
+import isLightColorScheme from '../utils/isLightColorScheme';
+import pageStyle from '../styles/pageStyle';
 
 const Search = () => {
   const { width } = useWindowDimensions();
@@ -36,26 +38,26 @@ const Search = () => {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       }
     })
-    .then(res => {
-      loadSearchList(res);
-    })
-    .catch(err => {
-      // console.log(err);
-      Alert.alert("搜索失败！", "请检查网络环境或者尝试重新获取B站Cookie！" + err);
-    });
+      .then(res => {
+        loadSearchList(res);
+      })
+      .catch(err => {
+        // console.log(err);
+        Alert.alert("搜索失败！", "请检查网络环境或者尝试重新获取B站Cookie！" + err);
+      });
   }
 
   // FEAT: 提取搜索结果
-  const loadSearchList = (res:any) => {
+  const loadSearchList = (res: any) => {
     // 用any很正常，我不会给搜索结果写结构，太复杂了
     let tempSearchList: Array<SearchListItem> = [];
     let tempSearchListItem: SearchListItem = {} as SearchListItem;
     for (let i = 0; i < res.data.data.result.length; i++) {
-      tempSearchListItem.title    = res.data.data.result[i].title   ;
-      tempSearchListItem.author   = res.data.data.result[i].author  ;
-      tempSearchListItem.bvid     = res.data.data.result[i].bvid    ;   // bv号作为循环渲染时的key
-      tempSearchListItem.pic      = res.data.data.result[i].pic     ;
-      tempSearchListItem.play     = res.data.data.result[i].play    ;
+      tempSearchListItem.title = res.data.data.result[i].title;
+      tempSearchListItem.author = res.data.data.result[i].author;
+      tempSearchListItem.bvid = res.data.data.result[i].bvid;   // bv号作为循环渲染时的key
+      tempSearchListItem.pic = res.data.data.result[i].pic;
+      tempSearchListItem.play = res.data.data.result[i].play;
       tempSearchListItem.duration = res.data.data.result[i].duration;
       tempSearchList.push(tempSearchListItem);
       tempSearchListItem = {} as SearchListItem;
@@ -63,35 +65,52 @@ const Search = () => {
     setSearchList(tempSearchList);
   }
 
-  // FEAT: FlatList的renderItem方法，目前没吃透
+  // FEAT: 格式化时间
+  const formatTime = (timeStr: string) => {
+    const parts = timeStr.split(':');
+    const formattedParts = parts.map(part => part.padStart(2, '0'));
+    return formattedParts.join(':');
+  }
+
+  // FEAT: FlatList的renderItem方法
   const renderItem = ({ item }: { item: SearchListItem }) => (
     <View style={[
-      styles.line,
-      Appearance.getColorScheme() === 'light'
-        ? { backgroundColor: 'white'}
-        : { backgroundColor: '#666666'}
+      pageStyle.line,
+      isLightColorScheme() ? pageStyle.lightContainer : pageStyle.darkContainer
     ]}>
       <View style={[
-        styles.item,
-        { width: width - 80 }, 
-        Appearance.getColorScheme() === 'light'
-          ? { backgroundColor: '#e6e6e6'}
-          : { backgroundColor: '#999999'}
+        pageStyle.item,
+        { width: width - 80 },
+        isLightColorScheme() ? { backgroundColor: '#e6e6e6' } : { backgroundColor: '#999999' }
       ]}>
-        <HTML
-          source={{html: item.title}}
-          contentWidth={width}
-          baseStyle={
-            { color: Appearance.getColorScheme() === 'light' ? 'black' : '#f2f2f2'}
+        <View style={[{ flexDirection: "column" }]}>
+          {/* 调试失败，图片不显示，估计是请求给多了，服务器拒绝了 */}
+          {/* <Image
+            width={160}
+            height={100}
+            source={[{uri: 'https:' + item.pic}]}
+          /> */}
+          <View>
+            <HTML
+              source={{ html: item.title }}
+              contentWidth={width}
+              tagsStyles={{
+                em: { fontWeight: 'bold', fontStyle: 'normal', color: isLightColorScheme() ? '#2296f3' : 'white' },
+              }}
+            />
+          </View>
+          <Text style={[{ color: isLightColorScheme() ? '#6b6b6b' : '#f2f2f2' }]}>
+            UP：{item.author}
+          </Text>
+          {
+            item.duration !== undefined && item.play !== undefined
+            && <Text style={[{ color: isLightColorScheme() ? '#6b6b6b' : '#f2f2f2' }]}>
+              总时长：{formatTime(item.duration)}    播放量：{item.play > 100000000 ? (item.play / 100000000).toFixed(2) + "亿" : item.play > 10000 ? (item.play / 10000).toFixed(2) + "万" : item.play}
+            </Text>
           }
-          tagsStyles={
-            {
-              em: { fontWeight: 'bold', fontStyle: 'normal', color:  Appearance.getColorScheme() === 'light' ? '#2296f3' : 'white' },
-            }
-          }
-        />
+        </View>
       </View>
-      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         <ChooseCid searchListItem={item} />
       </View>
     </View>
@@ -99,26 +118,24 @@ const Search = () => {
 
   return (
     <View style={[
-      styles.container,
-      Appearance.getColorScheme() === 'light' ? styles.lightModeColor : styles.darkModeColor
+      pageStyle.container,
+      isLightColorScheme() ? pageStyle.lightContainer : pageStyle.darkContainer
     ]}>
       <View
         style={[
-          { display: 'flex', flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1 },
-          Appearance.getColorScheme() === 'light' ? { borderBottomColor: '#f2f2f2' } : { borderBottomColor: '#999999', backgroundColor: '#333333' }
+          pageStyle.searchHeader,
+          isLightColorScheme() ? pageStyle.lightHeader : pageStyle.darkHeader
         ]}
       >
         <TextInput
           style={[
-            { borderColor: isTextInputFocused ? "#2196F3" : "#e8e8e8", borderWidth: 1, borderCurve: "circular", borderRadius: 12 }, 
+            { borderColor: isTextInputFocused ? '#2196F3' : '#e8e8e8', width: width - 80 },
+            pageStyle.searchBar,
             { backgroundColor: 'white' },
-            { width: width - 80, height: 40 },
-            { marginRight: 8, marginLeft: 8, paddingHorizontal: 8 },
-            Appearance.getColorScheme() === 'light' ? styles.lightModeColor : styles.darkModeColor
           ]}
-          value={ searchText }
+          value={searchText}
           placeholder="请输入关键字搜索"
-          placeholderTextColor={ Appearance.getColorScheme() === 'light' ? '#999999' : '#f2f2f2' }
+          placeholderTextColor={isLightColorScheme() ? '#999999' : '#f2f2f2'}
           onChangeText={(e) => { setSearchText(e) }}
           onFocus={() => setIsTextInputFocused(true)}
           onBlur={() => setIsTextInputFocused(false)}
@@ -126,14 +143,13 @@ const Search = () => {
         <Pressable
           onPress={() => { handleBiliSearch() }}
           style={({ pressed }) => [
-            Appearance.getColorScheme() === 'light'
+            isLightColorScheme()
               ? { backgroundColor: pressed ? '#999999' : 'white' }
               : { backgroundColor: pressed ? '#999999' : '#666666' },
-            { width: 56, height: 40, justifyContent: 'center', alignItems: 'center' },
-            { borderColor: "#e8e8e8", borderWidth: 1, borderCurve: "circular", borderRadius: 12 }
+            pageStyle.searchButton
           ]}
         >
-          <MaterialCommunityIcons name="magnify" color={ Appearance.getColorScheme() === 'light' ? '#2196F3' : '#f2f2f2' } size={ 24 }/>
+          <MaterialCommunityIcons name="magnify" color={isLightColorScheme() ? '#2196F3' : '#f2f2f2'} size={24} />
         </Pressable>
       </View>
       <FlatList
@@ -144,38 +160,5 @@ const Search = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  line: {
-    flexDirection: 'row',
-  },
-  item: {
-    marginVertical: 4,
-    marginLeft: 8,
-    marginRight: 8,
-    padding: 8,
-    borderCurve: "circular",
-    borderRadius: 12
-  },
-  onPressButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    height: 32
-  },
-  lightModeColor: {
-    color: 'black',
-    backgroundColor: 'white',
-  },
-  darkModeColor: {
-    color: '#f2f2f2',
-    backgroundColor: '#666666',
-  }
-});
 
 export default Search;

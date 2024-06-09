@@ -1,6 +1,6 @@
 interface Cid {
-    cid: number,
-    part: string,
+  cid: number,
+  part: string,
 }
- 
+
 export default Cid;
